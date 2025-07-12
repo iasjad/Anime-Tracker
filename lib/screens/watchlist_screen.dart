@@ -34,10 +34,10 @@ class WatchlistScreen extends StatelessWidget {
               : GridView.builder(
                   padding: EdgeInsets.all(10),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
+                    crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 0.7,
+                    childAspectRatio: 0.6,
                   ),
                   itemCount: provider.filteredWatchlist.length,
                   itemBuilder: (context, index) {

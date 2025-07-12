@@ -12,7 +12,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
   TextEditingController yearController = TextEditingController();
   String selectedSeason = "winter";
   TextEditingController searchController = TextEditingController(); // Search controller
-
+  String _sortBy = 'score'; // or 'popularity'
   final List<String> seasons = ["winter", "spring", "summer", "fall"];
 
   @override
@@ -135,11 +135,11 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
 
           // Search Bar
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: TextField(
               controller: searchController,
               onChanged: (query) {
-                provider.searchAnime(query, "seasonal");
+                Provider.of<AnimeProvider>(context, listen: false).searchAnime(query, "seasonal");
               },
               decoration: InputDecoration(
                 labelText: "Search Anime",
@@ -148,6 +148,29 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                 filled: true,
                 fillColor: Colors.white,
               ),
+            ),
+          ),
+
+          // Sort Dropdown
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text("Sort by: ", style: TextStyle(fontWeight: FontWeight.bold)),
+                DropdownButton<String>(
+                  value: _sortBy,
+                  items: [
+                    DropdownMenuItem(child: Text("Score"), value: "score"),
+                    DropdownMenuItem(child: Text("Popularity"), value: "popularity"),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _sortBy = value!;
+                    });
+                  },
+                ),
+              ],
             ),
           ),
 
@@ -162,17 +185,28 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
 
                 return Consumer<AnimeProvider>(
                   builder: (context, provider, child) {
+                    final animeList = List<Map<String, dynamic>>.from(provider.filteredAnimeList);
+                    animeList.sort((a, b) {
+                          final aNode = a['node'];
+                          final bNode = b['node'];
+
+                          if (_sortBy == 'score') {
+                            return ((bNode['mean'] ?? 0) as num).compareTo(aNode['mean'] ?? 0);
+                          } else {
+                            return ((bNode['num_list_users'] ?? 0) as num).compareTo(aNode['num_list_users'] ?? 0);
+                          }
+                        });
                     return GridView.builder(
                       padding: EdgeInsets.all(10),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
+                        crossAxisCount: 2,
                         crossAxisSpacing: 12,
                         mainAxisSpacing: 12,
                         childAspectRatio: 0.6,
                       ),
-                      itemCount: provider.filteredAnimeList.length,
-                      itemBuilder: (context, index) {
-                        final anime = provider.filteredAnimeList[index]["node"];
+                        itemCount: animeList.length,
+                        itemBuilder: (context, index) {
+                          final anime = animeList[index]["node"];
                         return AnimeCard(anime: anime);
                       },
                     );

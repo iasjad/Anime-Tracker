@@ -4,11 +4,13 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'anime_provider.dart';
 import 'anime_list_screen.dart';
 import 'screens/watched_list_screen.dart';
+import 'screens/settings_screen.dart';
 import 'screens/watchlist_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+  await Hive.openBox('settings');
   runApp(MyAnimeApp());
 }
 
@@ -52,6 +54,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Scaffold(
       appBar: AppBar(
         title: Text("My Anime Tracker"),
+        actions: [
+    IconButton(
+      icon: Icon(Icons.settings),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => SettingsScreen()),
+        );
+      },
+    ),
+  ],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Color(0xFFDDA853), // Golden Yellow
